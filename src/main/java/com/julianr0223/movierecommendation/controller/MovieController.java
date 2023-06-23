@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/movies")
+@RequestMapping("/movie")
 public class MovieController {
 
     private final MovieRepository movieRepository;
@@ -21,9 +21,9 @@ public class MovieController {
         return movieRepository.findAll();
     }
 
-    @GetMapping("/{id}")
-    public Movie getMovieById(@PathVariable Long movieId) {
-        return this.getMovieById(movieId);
+    @GetMapping("/{title}")
+    public Movie getMovieByTitle(@PathVariable String title) {
+        return movieRepository.findByTitle(title);
     }
 
     @PostMapping
@@ -35,8 +35,9 @@ public class MovieController {
     public Movie updateMovie(@PathVariable Long id, @RequestBody Movie movie) {
         Movie existingMovie = movieRepository.findById(id).orElse(null);
         if (existingMovie != null) {
+            existingMovie.setReleased(movie.getReleased());
+            existingMovie.setTagline(movie.getTagline());
             existingMovie.setTitle(movie.getTitle());
-            existingMovie.setImdbRating(movie.getImdbRating());
             return movieRepository.save(existingMovie);
         }
         return null;
@@ -45,5 +46,10 @@ public class MovieController {
     @DeleteMapping("/{id}")
     public void deleteMovie(@PathVariable Long id) {
         movieRepository.deleteById(id);
+    }
+
+    @GetMapping("/acted_in/{personName}")
+    public List<Movie> getMoviesByPersonActedIn(@PathVariable String personName) {
+        return movieRepository.findByActedIn(personName);
     }
 }
